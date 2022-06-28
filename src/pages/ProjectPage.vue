@@ -29,6 +29,8 @@
               :createTime="formatTime(item.create_time)"
               :projectKind="item.platform"
               :projectIcon="item.icon"
+              :id="item.id"
+              @deleteProject="deleteProject"
           ></ProjectList>
           <el-divider v-if="index+1<projects.length"></el-divider>
         </el-col>
@@ -41,11 +43,12 @@
           width="30%"
           center
           draggable>
-        <ProjectForm @addNewPrj="addNewPrj" @cancelAdd="cancelAdd"></ProjectForm>
+        <ProjectForm ref="ProjectForm" @addNewPrj="addNewPrj" @cancelAdd="cancelAdd"></ProjectForm>
       </el-dialog>
     </div>
   </div>
 </template>
+
 <script>
 import ProjectList from "@/components/ProjectList"
 import ProjectForm from "@/components/ProjectForm"
@@ -76,7 +79,7 @@ export default {
   methods: {
     async getProject() {
       await $axios.get('/project/get').then(res => {
-        this.projects = res.data.data
+        this.projects = res.data.data.reverse()
         this.searchData = cloneDeep(this.projects)
       }).catch(err => {
         console.log(err)
@@ -92,13 +95,33 @@ export default {
     },
     async addNewPrj(val) {
       this.dialogVisible = false
-      console.log(val)
-      await $axios.post('/project/add', {'prj': val})
-          .then(this.getProject())
+      await $axios.post('/project/add', {
+        'project_name': val.project_name,
+        'platform': val.platform,
+        'icon': val.icon,
+        'description': val.description,
+        'version': val.version
+      })
+          .then(
+              res => {
+                if (res.status === 200) {
+                  Object.assign(this.$refs.ProjectForm.$data, this.$refs.ProjectForm.$options.data())
+                  this.getProject()
+                }
+              })
           .catch(err => console.log(err))
     },
     cancelAdd(val) {
       this.dialogVisible = val
+    },
+    async deleteProject(id) {
+      await $axios.delete('/project/del/'+id)
+                  .then(res => {
+                    if (res.status===200) {
+                      this.getProject()
+                    }
+                  })
+                  .catch(err => {console.log(err)})
     }
   },
   watch: {
@@ -112,9 +135,10 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .main {
-  margin: 60px 20px;
+  margin: 20px 20px;
   padding: 10px 20px;
 }
 

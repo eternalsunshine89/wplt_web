@@ -1,5 +1,5 @@
 <template>
-  <div class="project-list" style="width: 100%; height: 80px">
+  <div class="project-list" style="width: 100%">
     <el-row>
       <el-col :span="2">
         <div style="width:60px; height:60px; padding-top: 10px">
@@ -26,7 +26,7 @@
           </el-link>
         </div>
         <div>
-          <el-link type="danger" :underline="false">
+          <el-link type="danger" :underline="false" @click="deleteProject">
             <el-icon>
               <Delete/>
             </el-icon>
@@ -48,6 +48,7 @@ export default {
     Delete
   },
   props: {
+    id: {},
     projectName: {},
     version: {},
     description: {},
@@ -56,6 +57,12 @@ export default {
     projectKind: {},
     projectIcon: {},
     styleData: {}
+  },
+  methods: {
+    deleteProject() {
+      console.log(this.id)
+      this.$emit('deleteProject', this.id)
+    }
   }
 }
 </script>

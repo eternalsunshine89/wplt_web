@@ -1,6 +1,6 @@
 <template>
   <div class="project-form">
-    <el-form :model="formData" label-position="left" label-width="80px">
+    <el-form :model="formData" ref="refForm" label-position="left" label-width="80px">
       <el-form-item label="项目图标">
         <el-input v-model="formData.icon"/>
       </el-form-item>
